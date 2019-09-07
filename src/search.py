@@ -104,12 +104,51 @@ def nullHeuristic(state, problem=None):
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
-    return 0
+    return util.manhattanDistance(state, problem.goal)
 
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    print(problem.__dict__)
+    # Nos visitados
+    closedList = { }
+
+    # Fronteira
+    openList = util.PriorityQueue()
+    openList.push({
+        'position': problem.getStartState(),
+        'pathCost': 0,
+        'parent': None,
+        'action': 'Stop',
+    }, 0)
+
+    while not openList.isEmpty():
+        # Visita o proximo no na lista
+        node = openList.pop()
+
+        closedList[node['position']] = node
+
+        if problem.isGoalState(node['position']):
+            path = [ ]
+
+            while node is not None:
+                path.append(node['action'])
+                node = node['parent']
+
+            path.reverse()
+            return path
+
+        for (successor, action, stepCost) in problem.getSuccessors(node['position']):
+            if successor not in closedList:
+                pathCost = node['pathCost'] + stepCost
+
+                openList.update({
+                    'position': successor,
+                    'pathCost': pathCost,
+                    'parent': node,
+                    'action': action,
+                }, pathCost + heuristic(successor, problem))
+
+    return [ 'Stop' ]
 
 
 # Abbreviations
