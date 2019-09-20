@@ -18,6 +18,7 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+import searchAgents
 
 class SearchProblem:
     """
@@ -104,15 +105,31 @@ def nullHeuristic(state, problem=None):
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
-    return util.manhattanDistance(state, problem.goal)
+    return util.manhattanDistance(state, problem.goal) #0
+
+
+def makePath(node):
+    """
+    Monta o caminho a ser percorrido.
+    """
+    path = [ ]
+
+    while node['parent'] is not None:
+        path.append(node['action'])
+        node = node['parent']
+
+    path.reverse()
+    return path
+
 
 def aStarSearch(problem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
-    print(problem.__dict__)
-    # Nos visitados
+    """
+    Algoritmo de busca A*.
+    """
+    # Nos visitados.
     closedList = { }
 
-    # Fronteira
+    # Fronteira.
     openList = util.PriorityQueue()
     openList.push({
         'position': problem.getStartState(),
@@ -122,26 +139,25 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     }, 0)
 
     while not openList.isEmpty():
-        # Visita o proximo no na lista
+        # Visita o proximo no na lista.
         node = openList.pop()
 
+        if node['position'] in closedList:
+            continue
+
+        # Adiciona no a lista de visitados.
         closedList[node['position']] = node
 
+        # Verifica se e a solucao.
         if problem.isGoalState(node['position']):
-            path = [ ]
+            return makePath(node)
 
-            while node is not None:
-                path.append(node['action'])
-                node = node['parent']
-
-            path.reverse()
-            return path
-
+        # Gera nos vizinhos.
         for (successor, action, stepCost) in problem.getSuccessors(node['position']):
             if successor not in closedList:
                 pathCost = node['pathCost'] + stepCost
 
-                openList.update({
+                openList.push({
                     'position': successor,
                     'pathCost': pathCost,
                     'parent': node,
