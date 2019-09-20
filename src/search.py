@@ -18,7 +18,6 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
-import searchAgents
 
 class SearchProblem:
     """
@@ -105,7 +104,13 @@ def nullHeuristic(state, problem=None):
     A heuristic function estimates the cost from the current state to the nearest
     goal in the provided SearchProblem.  This heuristic is trivial.
     """
-    return util.manhattanDistance(state, problem.goal) #0
+    return 0
+
+
+def chebyshevHeuristic(state, problem = None):
+    x1, y1 = state
+    x2, y2 = problem.goal
+    return max((abs(x1 - x2), abs(y1 - y2)))
 
 
 def makePath(node):
@@ -138,33 +143,34 @@ def aStarSearch(problem, heuristic=nullHeuristic):
         'action': 'Stop',
     }, 0)
 
-    while not openList.isEmpty():
-        # Visita o proximo no na lista.
-        node = openList.pop()
+    try:
+        while True:
+            # Visita o proximo no na lista.
+            node = openList.pop()
 
-        if node['position'] in closedList:
-            continue
+            if node['position'] in closedList:
+                continue
 
-        # Adiciona no a lista de visitados.
-        closedList[node['position']] = node
+            # Adiciona no a lista de visitados.
+            closedList[node['position']] = node
 
-        # Verifica se e a solucao.
-        if problem.isGoalState(node['position']):
-            return makePath(node)
+            # Verifica se e a solucao.
+            if problem.isGoalState(node['position']):
+                return makePath(node)
 
-        # Gera nos vizinhos.
-        for (successor, action, stepCost) in problem.getSuccessors(node['position']):
-            if successor not in closedList:
-                pathCost = node['pathCost'] + stepCost
+            # Gera nos vizinhos.
+            for (successor, action, stepCost) in problem.getSuccessors(node['position']):
+                if successor not in closedList:
+                    pathCost = node['pathCost'] + stepCost
 
-                openList.push({
-                    'position': successor,
-                    'pathCost': pathCost,
-                    'parent': node,
-                    'action': action,
-                }, pathCost + heuristic(successor, problem))
-
-    return [ 'Stop' ]
+                    openList.push({
+                        'position': successor,
+                        'pathCost': pathCost,
+                        'parent': node,
+                        'action': action,
+                    }, pathCost + heuristic(successor, problem))
+    except:
+        return [ 'Stop' ]
 
 
 # Abbreviations
